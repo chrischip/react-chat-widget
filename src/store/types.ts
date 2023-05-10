@@ -41,6 +41,7 @@ export interface BehaviorState {
   showChat: boolean;
   disabledInput: boolean;
   messageLoader: boolean;
+  voiceReply: boolean;
 };
 
 export interface MessagesState {

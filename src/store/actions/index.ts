@@ -15,6 +15,18 @@ export function toggleInputDisabled(): actionsTypes.ToggleInputDisabled {
   };
 }
 
+export function setVoiceReply(): actionsTypes.SetVoiceReply {
+  return {
+    type: actionsTypes.SET_VOICE_REPLY
+  };
+}
+
+export function resetVoiceReply(): actionsTypes.ResetVoiceReply {
+  return {
+    type: actionsTypes.RESET_VOICE_REPLY
+  };
+}
+
 export function addUserMessage(text: string, id?: string): actionsTypes.AddUserMessage {
   return {
     type: actionsTypes.ADD_NEW_USER_MESSAGE,

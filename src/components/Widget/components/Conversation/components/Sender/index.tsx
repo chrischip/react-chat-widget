@@ -1,5 +1,7 @@
 import { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setVoiceReply } from '../../../../../../store/actions';
+
 import cn from 'classnames';
 
 import { GlobalState } from 'src/store/types';
@@ -7,6 +9,7 @@ import { GlobalState } from 'src/store/types';
 import { getCaretIndex, isFirefox, updateCaret, insertNodeAtCaret, getSelection } from '../../../../../../utils/contentEditable'
 const send = require('../../../../../../../assets/send_button.svg') as string;
 const emoji = require('../../../../../../../assets/icon-smiley.svg') as string;
+const mic = require('../../../../../../../assets/mic.svg') as string;
 const brRegex = /<br>/g;
 
 import './style.scss';
@@ -23,6 +26,7 @@ type Props = {
 }
 
 function Sender({ sendMessage, placeholder, disabledInput, autofocus, onTextInputChange, buttonAlt, onPressEmoji, onChangeSize }: Props, ref) {
+  const dispatch = useDispatch();
   const showChat = useSelector((state: GlobalState) => state.behavior.showChat);
   const inputRef = useRef<HTMLDivElement>(null!);
   const refContainer = useRef<HTMLDivElement>(null);
@@ -128,6 +132,23 @@ function Sender({ sendMessage, placeholder, disabledInput, autofocus, onTextInpu
     <div ref={refContainer} className="rcw-sender">
       <button className='rcw-picker-btn' type="submit" onClick={handlerPressEmoji}>
         <img src={emoji} className="rcw-picker-icon" alt="" />
+      </button>
+      <button className='rcw-picker-btn' type="submit" onClick={() => {
+        
+      const recognition = new window.webkitSpeechRecognition();
+      recognition.lang = 'en-US';
+      recognition.start();
+
+        recognition.onresult = (event) => {
+       //   const el = inputRef.current;
+        const text = event.results[0][0].transcript;
+        //  el.innerHTML = text;
+          sendMessage(text);
+          dispatch(setVoiceReply());
+       
+      };
+    }}>
+        <img src={mic} className="rcw-picker-icon" alt="" width='24' height='24' />
       </button>
       <div className={cn('rcw-new-message', {
           'rcw-message-disable': disabledInput,

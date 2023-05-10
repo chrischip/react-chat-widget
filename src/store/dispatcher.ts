@@ -32,6 +32,14 @@ export function toggleInputDisabled() {
   store.dispatch(actions.toggleInputDisabled());
 }
 
+export function setVoiceReply() {
+  store.dispatch(actions.setVoiceReply());
+}
+
+export function resetVoiceReply() {
+  store.dispatch(actions.resetVoiceReply());
+}
+
 export function dropMessages() {
   store.dispatch(actions.dropMessages());
 }

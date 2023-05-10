@@ -8,6 +8,7 @@ import preview from './reducers/fullscreenPreviewReducer';
 declare global {
   interface Window {
     __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose;
+    webkitSpeechRecognition: any;
   }
 }
 

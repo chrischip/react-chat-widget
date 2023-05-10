@@ -4,11 +4,12 @@ import format from 'date-fns/format';
 
 import { scrollToBottom } from '../../../../../../utils/messages';
 import { MessageTypes, Link, CustomCompMessage, GlobalState } from '../../../../../../store/types';
-import { setBadgeCount, markAllMessagesRead } from '../../../../../../store/actions';
+import { setBadgeCount, markAllMessagesRead, resetVoiceReply } from '../../../../../../store/actions';
 import { MESSAGE_SENDER } from '../../../../../../constants';
 
 import Loader from './components/Loader';
 import './styles.scss';
+
 
 type Props = {
   showTimeStamp: boolean,
@@ -18,11 +19,12 @@ type Props = {
 
 function Messages({ profileAvatar, profileClientAvatar, showTimeStamp }: Props) {
   const dispatch = useDispatch();
-  const { messages, typing, showChat, badgeCount } = useSelector((state: GlobalState) => ({
+  const { messages, typing, showChat, badgeCount, voiceReply } = useSelector((state: GlobalState) => ({
     messages: state.messages.messages,
     badgeCount: state.messages.badgeCount,
     typing: state.behavior.messageLoader,
-    showChat: state.behavior.showChat
+    showChat: state.behavior.showChat,
+    voiceReply: state.behavior.voiceReply
   }));
 
   const messageRef = useRef<HTMLDivElement | null>(null);
@@ -31,6 +33,18 @@ function Messages({ profileAvatar, profileClientAvatar, showTimeStamp }: Props) 
     scrollToBottom(messageRef.current);
     if (showChat && badgeCount) dispatch(markAllMessagesRead());
     else dispatch(setBadgeCount(messages.filter((message) => message.unread).length));
+
+    //get the last message
+    const lastMessage = messages[messages.length - 1];
+ 
+    if (lastMessage && lastMessage.sender === MESSAGE_SENDER.RESPONSE && voiceReply) {
+      const text = (lastMessage as MessageTypes).text;
+      //alert((lastMessage as MessageTypes).text + " resetting");
+      dispatch(resetVoiceReply());
+      const utterance = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.speak(utterance);
+    }
+
   }, [messages, badgeCount, showChat]);
     
   const getComponentToRender = (message: MessageTypes | Link | CustomCompMessage) => {
@@ -64,8 +78,10 @@ function Messages({ profileAvatar, profileClientAvatar, showTimeStamp }: Props) 
               alt="profile"
             />
           }
-          {getComponentToRender(message)}
+          {getComponentToRender(message)}       
+        
         </div>
+     
       )}
       <Loader typing={typing} />
     </div>

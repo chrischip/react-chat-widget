@@ -17,6 +17,8 @@ export const MARK_ALL_READ = 'MESSAGES/MARK_ALL_READ';
 export const SET_QUICK_BUTTONS = 'SET_QUICK_BUTTONS';
 export const OPEN_FULLSCREEN_PREVIEW = 'FULLSCREEN/OPEN_PREVIEW';
 export const CLOSE_FULLSCREEN_PREVIEW = 'FULLSCREEN/CLOSE_PREVIEW';
+export const SET_VOICE_REPLY = 'SET_VOICE_REPLY';
+export const RESET_VOICE_REPLY = 'RESET_VOICE_REPLY';
 
 export interface ToggleChat {
   type: typeof TOGGLE_CHAT;
@@ -24,6 +26,14 @@ export interface ToggleChat {
 
 export interface ToggleInputDisabled {
   type: typeof TOGGLE_INPUT_DISABLED;
+}
+
+export interface SetVoiceReply {
+  type: typeof SET_VOICE_REPLY;
+}
+
+export interface ResetVoiceReply {
+  type: typeof RESET_VOICE_REPLY;
 }
 
 export interface AddUserMessage {
@@ -85,7 +95,7 @@ export interface MarkAllMessagesRead {
   type: typeof MARK_ALL_READ;
 }
 
-export type BehaviorActions = ToggleChat | ToggleInputDisabled | ToggleMsgLoader;
+export type BehaviorActions = ToggleChat | ToggleInputDisabled | ToggleMsgLoader | SetVoiceReply | ResetVoiceReply;
 
 export type MessagesActions = AddUserMessage | AddResponseMessage | AddLinkSnippet | RenderCustomComponent
                               | DropMessages | HideAvatar | DeleteMessages | MarkAllMessagesRead | SetBadgeCount;
