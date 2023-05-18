@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setVoiceReply } from '../../../../../../store/actions';
+import { setVoiceReply, setRecognitionObject, setListening, resetListening } from '../../../../../../store/actions';
 
 import cn from 'classnames';
 

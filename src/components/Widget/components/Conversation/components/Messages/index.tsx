@@ -4,7 +4,7 @@ import format from 'date-fns/format';
 
 import { scrollToBottom } from '../../../../../../utils/messages';
 import { MessageTypes, Link, CustomCompMessage, GlobalState } from '../../../../../../store/types';
-import { setBadgeCount, markAllMessagesRead, resetVoiceReply } from '../../../../../../store/actions';
+import { setBadgeCount, markAllMessagesRead, resetVoiceReply, resetListening, setListening } from '../../../../../../store/actions';
 import { MESSAGE_SENDER } from '../../../../../../constants';
 
 import Loader from './components/Loader';
@@ -19,12 +19,14 @@ type Props = {
 
 function Messages({ profileAvatar, profileClientAvatar, showTimeStamp }: Props) {
   const dispatch = useDispatch();
-  const { messages, typing, showChat, badgeCount, voiceReply } = useSelector((state: GlobalState) => ({
+  const { messages, typing, showChat, badgeCount, voiceReply, isListening } = useSelector((state: GlobalState) => ({
     messages: state.messages.messages,
     badgeCount: state.messages.badgeCount,
     typing: state.behavior.messageLoader,
     showChat: state.behavior.showChat,
-    voiceReply: state.behavior.voiceReply
+    voiceReply: state.behavior.voiceReply,
+    isListening: state.behavior.isListening,
+    
   }));
 
   const messageRef = useRef<HTMLDivElement | null>(null);
@@ -40,9 +42,25 @@ function Messages({ profileAvatar, profileClientAvatar, showTimeStamp }: Props) 
     if (lastMessage && lastMessage.sender === MESSAGE_SENDER.RESPONSE && voiceReply) {
       const text = (lastMessage as MessageTypes).text;
       //alert((lastMessage as MessageTypes).text + " resetting");
-      dispatch(resetVoiceReply());
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(utterance);
+     
+      if (isListening){
+        //temporary stop listening to avoid double reply
+        dispatch(resetListening());
+      }
+
+      setTimeout(() => {
+        const utterance = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.speak(utterance);
+
+        if (isListening){
+          dispatch(setListening);
+        }else {
+          //not listening, so do not do speech syntheseis next time
+          dispatch(resetVoiceReply());
+        
+        }
+      } , 1000);
+     
     }
 
   }, [messages, badgeCount, showChat]);

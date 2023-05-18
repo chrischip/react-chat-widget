@@ -27,6 +27,9 @@ export function isWidgetOpened(): boolean;
 export function setQuickButtons(buttons: Array<{ label: string, value: string | number }>): void;
 export function setVoiceReply(): void;
 export function resetVoiceReply(): void;
+export function setListening(): void;
+export function resetListening(): void;
+export function setRecognitionObject(recognitionObject: any): void;
 
 
 export function deleteMessages(count: number): void;

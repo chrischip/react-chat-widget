@@ -27,6 +27,26 @@ export function resetVoiceReply(): actionsTypes.ResetVoiceReply {
   };
 }
 
+export function setListening(): actionsTypes.Set_Listening {
+  return {
+    type: actionsTypes.SET_LISTENING
+  };
+}
+
+export function resetListening(): actionsTypes.Reset_Listening {
+  return {
+    type: actionsTypes.RESET_LISTENING
+  };
+}
+
+export function setRecognitionObject(recognitionObject: any): actionsTypes.Set_Recognition_Object {
+  return {
+    type: actionsTypes.SET_RECOGNITION_OBJECT,
+    recognitionObject
+  };
+}
+
+
 export function addUserMessage(text: string, id?: string): actionsTypes.AddUserMessage {
   return {
     type: actionsTypes.ADD_NEW_USER_MESSAGE,

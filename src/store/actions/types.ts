@@ -19,6 +19,9 @@ export const OPEN_FULLSCREEN_PREVIEW = 'FULLSCREEN/OPEN_PREVIEW';
 export const CLOSE_FULLSCREEN_PREVIEW = 'FULLSCREEN/CLOSE_PREVIEW';
 export const SET_VOICE_REPLY = 'SET_VOICE_REPLY';
 export const RESET_VOICE_REPLY = 'RESET_VOICE_REPLY';
+export const SET_LISTENING = 'SET_LISTENING';
+export const RESET_LISTENING = 'RESET_LISTENING';
+export const SET_RECOGNITION_OBJECT = 'SET_RECOGNITION_OBJECT';
 
 export interface ToggleChat {
   type: typeof TOGGLE_CHAT;
@@ -34,6 +37,19 @@ export interface SetVoiceReply {
 
 export interface ResetVoiceReply {
   type: typeof RESET_VOICE_REPLY;
+}
+
+export interface Set_Listening {
+  type: typeof SET_LISTENING;
+}
+
+export interface Reset_Listening {
+  type: typeof RESET_LISTENING;
+}
+
+export interface Set_Recognition_Object {
+  type: typeof SET_RECOGNITION_OBJECT;
+  recognitionObject: any;
 }
 
 export interface AddUserMessage {
