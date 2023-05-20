@@ -99,6 +99,9 @@ module.exports = {
         amd: 'react-dom'
     }
   },
+//   optimization: {
+//     minimize: false
+// }
   optimization: {
     minimizer: [
       new UglifyJsPlugin({

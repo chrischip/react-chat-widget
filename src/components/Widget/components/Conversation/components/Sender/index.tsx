@@ -10,9 +10,12 @@ import { getCaretIndex, isFirefox, updateCaret, insertNodeAtCaret, getSelection 
 const send = require('../../../../../../../assets/send_button.svg') as string;
 const emoji = require('../../../../../../../assets/icon-smiley.svg') as string;
 const mic = require('../../../../../../../assets/mic.svg') as string;
+const mute = require('../../../../../../../assets/mute.svg') as string;
 const brRegex = /<br>/g;
 
 import './style.scss';
+import { set } from 'date-fns';
+import { is } from 'date-fns/locale';
 
 type Props = {
   placeholder: string;
@@ -32,10 +35,46 @@ function Sender({ sendMessage, placeholder, disabledInput, autofocus, onTextInpu
   const refContainer = useRef<HTMLDivElement>(null);
   const [enter, setEnter]= useState(false)
   const [firefox, setFirefox] = useState(false);
-  const [height, setHeight] = useState(0)
+  const [height, setHeight] = useState(0);
+  const [isListening, setIsListening] = useState(false);
+  const [recognitionStateObject, setRecognitionStateObject] = useState(Object);
+
   // @ts-ignore
   useEffect(() => { if (showChat && autofocus) inputRef.current?.focus(); }, [showChat]);
   useEffect(() => { setFirefox(isFirefox())}, [])
+  useEffect(() => {
+    if (isListening) {
+      dispatch(setListening());
+    var recognitionObject = recognitionStateObject;
+    console.log("recognitionObject" , recognitionObject);
+   // console.log(Object.getOwnPropertyNames(Object.getPrototypeOf( recognitionObject)));
+
+   // debugger;
+    if (!recognitionObject?.lang) {
+      console.log("recognition not initialized, creating new one");
+      recognitionObject = new window.webkitSpeechRecognition();
+      recognitionObject.lang = 'en-US';
+      recognitionObject.continuous = true;
+      const grammar =  "#JSGF V1.0; grammar words; public <words> = NFT | Artfundi;";
+      //const speechRecognitionList = new window.webkitSpeechGrammarList
+      recognitionObject.onresult = (event) => {
+        //   const el = inputRef.current;
+        const text = event.results[event.results.length-1][0].transcript;
+        //  el.innerHTML = text;
+          sendMessage(text);
+          dispatch(setVoiceReply());
+      };
+      setRecognitionStateObject(recognitionObject);
+      dispatch(setRecognitionObject(recognitionObject));
+    }else {
+      console.log("recognition object already exists");
+    }
+  }else{
+    console.log("dispatching reset listening");
+    dispatch(resetListening());
+  }
+   
+  }, [isListening, recognitionStateObject]);
 
   useImperativeHandle(ref, () => {
     return {
@@ -134,21 +173,28 @@ function Sender({ sendMessage, placeholder, disabledInput, autofocus, onTextInpu
         <img src={emoji} className="rcw-picker-icon" alt="" />
       </button>
       <button className='rcw-picker-btn' type="submit" onClick={() => {
-        
-      const recognition = new window.webkitSpeechRecognition();
-      recognition.lang = 'en-US';
-      recognition.start();
 
-        recognition.onresult = (event) => {
-       //   const el = inputRef.current;
-        const text = event.results[0][0].transcript;
-        //  el.innerHTML = text;
-          sendMessage(text);
-          dispatch(setVoiceReply());
-       
-      };
+      console.log("is listening: " + isListening);
+      if (isListening) {
+        setIsListening(false);
+      //  dispatch(resetListening());
+      } else {
+        setIsListening(true);
+       // dispatch(setListening());
+      
+      }
+
+    
+     
+
+    
+   
+
+     
     }}>
-        <img src={mic} className="rcw-picker-icon" alt="" width='24' height='24' />
+       {/* {!isListening && <img src={mic} className="rcw-picker-icon" alt="" width='24' height='24' />}
+       {isListening && <img src={mute} className="rcw-picker-icon" alt="" width='24' height='24' />} */}
+       <img src={isListening? mute : mic} className="rcw-picker-icon" title={isListening? "Stop Listening" : "Start Listening"} alt={isListening? "Stop Listening" : "Start Listening"} width='24' height='24' />
       </button>
       <div className={cn('rcw-new-message', {
           'rcw-message-disable': disabledInput,

@@ -44,22 +44,28 @@ function Messages({ profileAvatar, profileClientAvatar, showTimeStamp }: Props) 
       //alert((lastMessage as MessageTypes).text + " resetting");
      
       if (isListening){
-        //temporary stop listening to avoid double reply
+        console.log('temporary stop listening to avoid double reply');
         dispatch(resetListening());
       }
 
-      setTimeout(() => {
+   //   setTimeout(() => {
         const utterance = new SpeechSynthesisUtterance(text);
-        window.speechSynthesis.speak(utterance);
-
+       
+        
         if (isListening){
-          dispatch(setListening);
+          utterance.onend = () => {
+          console.log('resume listening...');
+          dispatch(setListening());
+          }
+        
         }else {
           //not listening, so do not do speech syntheseis next time
           dispatch(resetVoiceReply());
         
         }
-      } , 1000);
+
+        window.speechSynthesis.speak(utterance);
+    //  } , 1000);
      
     }
 

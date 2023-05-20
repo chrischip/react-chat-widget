@@ -36,19 +36,25 @@ const behaviorReducer = {
   [RESET_VOICE_REPLY]: (state: BehaviorState) => ({ ...state, voiceReply: false }),
   [SET_LISTENING]: (state: BehaviorState) => {
     if (state.recognitionObject) {
+      if (!state.isListening) {
       //try to start listening, if exception occurs, enter retry loop for 3 times. If still fails, set isListening to false
       try {
-        state.recognitionObject.start();
-      } catch (error) {
+        console.log("start listening....");
+     
+        
+          state.recognitionObject.start();
        
-        console.log(error);
+        
+      } catch (error) {
+    //   debugger;
+      //  console.log(error);
         let retryCount = 0;
         while (retryCount < 3) {
           try {
             state.recognitionObject.start();
             break;
           } catch (error) {
-            console.log(error);
+      //      console.log(error);
             retryCount++;
           }
         }
@@ -56,25 +62,43 @@ const behaviorReducer = {
           return { ...state, isListening: false }         
         }
       }
+    }else{
+        console.log("already in listening state");
+    }
 
       return { ...state, isListening: true, voiceReply: true }
       
     }else {
+      console.log("recognitionObject is null, cannot start listening");
       return { ...state, isListening: false }
     }    
   },
   [RESET_LISTENING]: (state: BehaviorState) => {
     if (state.recognitionObject) {
-      try {
-      state.recognitionObject.stop();
-      } catch (error) {
-        console.log(error);
-      }
+      if (state.isListening) {
+        console.log("stop listening....");
+      
+        
+          try {
+         
+            state.recognitionObject.stop();
+          } catch (error) {
+          //  console.log(error);
+          }
+       
+     }else{
+        console.log("already in stop state");
+     }
+    }else{
+      console.log("cannot stop listening, recognitionObject is null");
     }
     
     return { ...state, isListening: false, voiceReply: false }
   },
-  [SET_RECOGNITION_OBJECT]: (state: BehaviorState, { recognitionObject }) => ({ ...state, recognitionObject })
+  [SET_RECOGNITION_OBJECT]: (state: BehaviorState, { recognitionObject }) => {
+    console.log("set recognition object");
+    return { ...state, recognitionObject }
+  }
 };
 
 export default (state: BehaviorState = initialState, action: BehaviorActions) => createReducer(behaviorReducer, state, action);
