@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setVoiceReply, setRecognitionObject, setListening, resetListening } from '../../../../../../store/actions';
+import { setVoiceReply, setRecognitionObject, setListening, resetListening, resetUserIntendedListening, setUserIntendedListening } from '../../../../../../store/actions';
+import store from '../../../../../../store';
 
 import cn from 'classnames';
 
@@ -38,6 +39,7 @@ function Sender({ sendMessage, placeholder, disabledInput, autofocus, onTextInpu
   const [height, setHeight] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [recognitionStateObject, setRecognitionStateObject] = useState(Object);
+  const isListeningGlobalState =  useSelector((state: GlobalState) => state.behavior.isRecognitionListening);
 
   // @ts-ignore
   useEffect(() => { if (showChat && autofocus) inputRef.current?.focus(); }, [showChat]);
@@ -55,8 +57,41 @@ function Sender({ sendMessage, placeholder, disabledInput, autofocus, onTextInpu
       recognitionObject = new window.webkitSpeechRecognition();
       recognitionObject.lang = 'en-US';
       recognitionObject.continuous = true;
+     
       const grammar =  "#JSGF V1.0; grammar words; public <words> = NFT | Artfundi;";
       //const speechRecognitionList = new window.webkitSpeechGrammarList
+    
+      setRecognitionStateObject(recognitionObject);
+      dispatch(setRecognitionObject(recognitionObject));
+    }else {
+      console.log("recognition object already exists");
+    }
+
+    //update recongition object to use the latest sendMessage function
+    recognitionObject.onresult = (event) => {
+      //   const el = inputRef.current;
+      const text = event.results[event.results.length-1][0].transcript;
+      //  el.innerHTML = text;
+        sendMessage(text);
+        dispatch(setVoiceReply());
+    };
+    recognitionObject.onend = () => {
+      console.log("recognition ended by itself, restarting")
+      recognitionObject?.start();
+    };
+  }else{
+    console.log("dispatching reset listening");
+    dispatch(resetListening());
+  }
+   
+  }, [isListening, recognitionStateObject]);
+
+  useEffect(() => {
+    if (isListeningGlobalState){
+      console.log("is listening global state changed to true");
+    var recognitionObject = recognitionStateObject;
+    if (recognitionObject?.lang){
+      console.log("resetting recognition result event");
       recognitionObject.onresult = (event) => {
         //   const el = inputRef.current;
         const text = event.results[event.results.length-1][0].transcript;
@@ -64,17 +99,25 @@ function Sender({ sendMessage, placeholder, disabledInput, autofocus, onTextInpu
           sendMessage(text);
           dispatch(setVoiceReply());
       };
-      setRecognitionStateObject(recognitionObject);
-      dispatch(setRecognitionObject(recognitionObject));
+      recognitionObject.onend = () => {
+        console.log("recognition ended by itself, determining current listen state")
+        if (store.getState().behavior.isUserIntendedListening){
+          console.log("restarting recognition");
+          recognitionObject?.start();
+        }else{
+          console.log("skipping recognition restart");
+        }
+      };
+
     }else {
-      console.log("recognition object already exists");
+      console.log("recognition object not initialized, ignoring effect");
     }
   }else{
-    console.log("dispatching reset listening");
-    dispatch(resetListening());
+    console.log("is listening global state changed to false");
+
   }
-   
-  }, [isListening, recognitionStateObject]);
+  }
+  , [isListeningGlobalState]);
 
   useImperativeHandle(ref, () => {
     return {
@@ -177,17 +220,12 @@ function Sender({ sendMessage, placeholder, disabledInput, autofocus, onTextInpu
       console.log("is listening: " + isListening);
       if (isListening) {
         setIsListening(false);
-      //  dispatch(resetListening());
-      } else {
+        dispatch(resetUserIntendedListening());
+        } else {
         setIsListening(true);
-       // dispatch(setListening());
-      
+        dispatch(setUserIntendedListening());
+            
       }
-
-    
-     
-
-    
    
 
      

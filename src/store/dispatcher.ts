@@ -48,6 +48,18 @@ export function isWidgetOpened(): boolean {
   return store.getState().behavior.showChat;
 }
 
+export function getListeningState(): boolean {
+  return store.getState().behavior.isListening;
+}
+
+export function setListening() {
+  store.dispatch(actions.setListening());
+}
+
+export function resetListening() {
+  store.dispatch(actions.resetListening());
+}
+
 export function setQuickButtons(buttons: Array<{ label: string, value: string | number }>) {
   store.dispatch(actions.setQuickButtons(buttons));
 }

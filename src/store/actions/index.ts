@@ -39,6 +39,19 @@ export function resetListening(): actionsTypes.Reset_Listening {
   };
 }
 
+export function setUserIntendedListening(): actionsTypes.Set_User_Intended_Listening {
+  return {
+    type: actionsTypes.SET_USER_INTENDED_LISTENING
+  };
+}
+
+export function resetUserIntendedListening(): actionsTypes.Reset_User_Intended_Listening {
+  return {
+    type: actionsTypes.RESET_USER_INTENDED_LISTENING
+  };
+}
+
+
 export function setRecognitionObject(recognitionObject: any): actionsTypes.Set_Recognition_Object {
   return {
     type: actionsTypes.SET_RECOGNITION_OBJECT,

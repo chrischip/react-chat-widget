@@ -1,3 +1,5 @@
+import { is } from 'date-fns/locale';
+import { timeout } from 'rxjs/operators';
 import { createReducer } from '../../utils/createReducer';
 import { BehaviorState } from '../types';
 
@@ -10,7 +12,9 @@ import {
   RESET_VOICE_REPLY,
   SET_LISTENING,
   RESET_LISTENING,
-  SET_RECOGNITION_OBJECT
+  SET_RECOGNITION_OBJECT,
+  SET_USER_INTENDED_LISTENING,
+  RESET_USER_INTENDED_LISTENING
 
 } from '../actions/types';
 
@@ -19,8 +23,9 @@ const initialState = {
   disabledInput: false,
   messageLoader: false,
   voiceReply: false,
-  isListening: false,
-  recognitionObject: null
+  isRecognitionListening: false,
+  recognitionObject: null,
+  isUserIntendedListening: false
 
 };
 
@@ -34,9 +39,14 @@ const behaviorReducer = {
   [SET_VOICE_REPLY]: (state: BehaviorState) => ({ ...state, voiceReply: true }),
 
   [RESET_VOICE_REPLY]: (state: BehaviorState) => ({ ...state, voiceReply: false }),
+
+  [SET_USER_INTENDED_LISTENING]: (state: BehaviorState) => ({ ...state, isUserIntendedListening: true }),
+
+  [RESET_USER_INTENDED_LISTENING]: (state: BehaviorState) => ({ ...state, isUserIntendedListening: false }),
+  
   [SET_LISTENING]: (state: BehaviorState) => {
     if (state.recognitionObject) {
-      if (!state.isListening) {
+      if (!state.isRecognitionListening) {
       //try to start listening, if exception occurs, enter retry loop for 3 times. If still fails, set isListening to false
       try {
         console.log("start listening....");
@@ -59,29 +69,33 @@ const behaviorReducer = {
           }
         }
         if (retryCount === 3) {
-          return { ...state, isListening: false }         
+          return { ...state, isRecognitionListening: false }         
         }
       }
     }else{
         console.log("already in listening state");
     }
 
-      return { ...state, isListening: true, voiceReply: true }
+      return { ...state, isRecognitionListening: true, voiceReply: true }
       
     }else {
       console.log("recognitionObject is null, cannot start listening");
-      return { ...state, isListening: false }
+      return { ...state, isRecognitionListening: false }
     }    
   },
   [RESET_LISTENING]: (state: BehaviorState) => {
     if (state.recognitionObject) {
-      if (state.isListening) {
-        console.log("stop listening....");
-      
-        
+      if (state.isRecognitionListening) {
+        console.log("stop listening....");      
+        const currentObject = state.recognitionObject;
+          currentObject.onend = () => {
+            console.log("Speech recognition service disconnected");
+          };
+          
           try {
-         
-            state.recognitionObject.stop();
+            setTimeout(() => {
+              currentObject.stop();
+            }, 1000);
           } catch (error) {
           //  console.log(error);
           }
@@ -93,7 +107,7 @@ const behaviorReducer = {
       console.log("cannot stop listening, recognitionObject is null");
     }
     
-    return { ...state, isListening: false, voiceReply: false }
+    return { ...state, isRecognitionListening: false, voiceReply: false }
   },
   [SET_RECOGNITION_OBJECT]: (state: BehaviorState, { recognitionObject }) => {
     console.log("set recognition object");

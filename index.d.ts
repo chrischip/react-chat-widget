@@ -29,6 +29,10 @@ export function setVoiceReply(): void;
 export function resetVoiceReply(): void;
 export function setListening(): void;
 export function resetListening(): void;
+export function setUserIntendedListening(): void;
+export function resetUserIntendedListening(): void;
+
+export function getListeningState(): boolean;
 export function setRecognitionObject(recognitionObject: any): void;
 
 

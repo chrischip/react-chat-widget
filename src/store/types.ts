@@ -42,8 +42,9 @@ export interface BehaviorState {
   disabledInput: boolean;
   messageLoader: boolean;
   voiceReply: boolean;
-  isListening: boolean;
+  isRecognitionListening: boolean;
   recognitionObject: any;
+  isUserIntendedListening: boolean;
 };
 
 export interface MessagesState {

@@ -14,7 +14,10 @@ import {
   setQuickButtons,
   deleteMessages,
   markAllAsRead,
-  setBadgeCount
+  setBadgeCount,
+  getListeningState,
+  setListening,
+  resetListening
 } from './src/store/dispatcher';
 
 export {
@@ -31,5 +34,8 @@ export {
   setQuickButtons,
   deleteMessages,
   markAllAsRead,
-  setBadgeCount
+  setBadgeCount,
+  getListeningState,
+  setListening,
+  resetListening
 };

@@ -6,7 +6,7 @@ import { scrollToBottom } from '../../../../../../utils/messages';
 import { MessageTypes, Link, CustomCompMessage, GlobalState } from '../../../../../../store/types';
 import { setBadgeCount, markAllMessagesRead, resetVoiceReply, resetListening, setListening } from '../../../../../../store/actions';
 import { MESSAGE_SENDER } from '../../../../../../constants';
-
+import store from '../../../../../../store';
 import Loader from './components/Loader';
 import './styles.scss';
 
@@ -19,13 +19,13 @@ type Props = {
 
 function Messages({ profileAvatar, profileClientAvatar, showTimeStamp }: Props) {
   const dispatch = useDispatch();
-  const { messages, typing, showChat, badgeCount, voiceReply, isListening } = useSelector((state: GlobalState) => ({
+  const { messages, typing, showChat, badgeCount, voiceReply, isRecognitionListening } = useSelector((state: GlobalState) => ({
     messages: state.messages.messages,
     badgeCount: state.messages.badgeCount,
     typing: state.behavior.messageLoader,
     showChat: state.behavior.showChat,
     voiceReply: state.behavior.voiceReply,
-    isListening: state.behavior.isListening,
+    isRecognitionListening: state.behavior.isRecognitionListening,
     
   }));
 
@@ -43,7 +43,7 @@ function Messages({ profileAvatar, profileClientAvatar, showTimeStamp }: Props) 
       const text = (lastMessage as MessageTypes).text;
       //alert((lastMessage as MessageTypes).text + " resetting");
      
-      if (isListening){
+      if (isRecognitionListening){
         console.log('temporary stop listening to avoid double reply');
         dispatch(resetListening());
       }
@@ -52,10 +52,14 @@ function Messages({ profileAvatar, profileClientAvatar, showTimeStamp }: Props) 
         const utterance = new SpeechSynthesisUtterance(text);
        
         
-        if (isListening){
+        if (isRecognitionListening){
           utterance.onend = () => {
-          console.log('resume listening...');
-          dispatch(setListening());
+            if (store.getState().behavior.isUserIntendedListening){
+              console.log('resume listening...');
+              dispatch(setListening());
+            }else {
+              console.log('not listening, so do not resume');
+            }
           }
         
         }else {
